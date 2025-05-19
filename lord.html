@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Piedra, Papel o Tijera Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    :root {
+      --primary-color: #4facfe;
+      --secondary-color: #00f2fe;
+      --win-color: #4caf50;
+      --lose-color: #f44336;
+      --draw-color: #ffc107;
+    }
+    
+    body {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 20px;
+      color: #fff;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+    
+    .game-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .game-box {
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    h2 {
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      font-size: 2.2rem;
+    }
+    
+    .btn-choice {
+      font-size: 2.5rem;
+      margin: 10px;
+      padding: 20px;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      transition: all 0.3s ease;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-choice:hover {
+      transform: scale(1.15) rotate(10deg);
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-choice:active {
+      transform: scale(0.95);
+    }
+    
+    #result {
+      font-size: 1.5rem;
+      margin: 25px 0;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    
+    .choices {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .choice {
+      font-size: 3rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 10px;
+    }
+    
+    .vs {
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .score-board {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .score {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+    }
+    
+    .badge {
+      font-size: 0.9rem;
+      padding: 5px 10px;
+      border-radius: 20px;
+      margin-left: 10px;
+    }
+    
+    .history {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    
+    .history-item {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .win {
+      color: var(--win-color);
+    }
+    
+    .lose {
+      color: var(--lose-color);
+    }
+    
+    .draw {
+      color: var(--draw-color);
+    }
+    
+    .pulse {
+      animation: pulse 0.5s;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .shake {
+      animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+    
+    .emoji-result {
+      font-size: 4rem;
+      margin: 10px 0;
+    }
+    
+    @media (max-width: 576px) {
+      .btn-choice {
+        width: 70px;
+        height: 70px;
+        font-size: 2rem;
+      }
+      
+      .choice {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-box animate__animated animate__fadeIn">
+      <h2>✊ ✋ ✌ PIEDRA, PAPEL O TIJERA</h2>
+      <p class="lead">Elige tu jugada y compite contra la máquina</p>
+      
+      <div class="score-board">
+        <div class="score">
+          Jugador <span class="badge bg-success" id="player-score">0</span>
+        </div>
+        <div class="score">
+          Empates <span class="badge bg-warning text-dark" id="draw-score">0</span>
+        </div>
+        <div class="score">
+          Máquina <span class="badge bg-danger" id="computer-score">0</span>
+        </div>
+      </div>
+      
+      <div class="choices">
+        <div>
+          <div class="choice" id="player-choice">?</div>
+          <div>Tú</div>
+        </div>
+        <div class="vs">VS</div>
+        <div>
+          <div class="choice" id="computer-choice">?</div>
+          <div>Máquina</div>
+        </div>
+      </div>
+      
+      <div id="result">
+        <div class="emoji-result">🤔</div>
+        <div>Elige una opción para comenzar</div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn-choice animate__animated" onclick="playGame('piedra')" title="Piedra">✊</button>
+        <button class="btn-choice animate__animated" onclick="playGame('papel')" title="Papel">✋</button>
+        <button class="btn-choice animate__animated" onclick="playGame('tijera')" title="Tijera">✌️</button>
+      </div>
+      
+      <div class="history" id="history">
+        <div class="history-item text-muted">Historial de partidas</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+  <audio id="lose-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" preload="auto"></audio>
+  <audio id="draw-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-neutral-game-notification-951.mp3" preload="auto"></audio>
+  <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3" preload="auto"></audio>
+
+  <script>
+    // Variables del juego
+    let playerScore = 0;
+    let computerScore = 0;
+    let drawScore = 0;
+    let gameHistory = [];
+    
+    // Elementos del DOM
+    const playerChoiceDisplay = document.getElementById('player-choice');
+    const computerChoiceDisplay = document.getElementById('computer-choice');
+    const resultDisplay = document.getElementById('result');
+    const playerScoreDisplay = document.getElementById('player-score');
+    const computerScoreDisplay = document.getElementById('computer-score');
+    const drawScoreDisplay = document.getElementById('draw-score');
+    const historyDisplay = document.getElementById('history');
+    const emojiResult = document.querySelector('.emoji-result');
+    
+    // Sonidos
+    const winSound = document.getElementById('win-sound');
+    const loseSound = document.getElementById('lose-sound');
+    const drawSound = document.getElementById('draw-sound');
+    const clickSound = document.getElementById('click-sound');
+    
+    // Emojis para las opciones
+    const emojis = {
+      piedra: '✊',
+      papel: '✋',
+      tijera: '✌️'
+    };
+    
+    // Nombres de las opciones
+    const optionNames = {
+      piedra: 'Piedra',
+      papel: 'Papel',
+      tijera: 'Tijera'
+    };
+    
+    // Función principal del juego
+    function playGame(playerChoice) {
+      // Reproducir sonido de click
+      clickSound.currentTime = 0;
+      clickSound.play();
+      
+      // Mostrar elección del jugador
+      playerChoiceDisplay.textContent = emojis[playerChoice];
+      playerChoiceDisplay.classList.add('pulse');
+      
+      // Animación de espera para la máquina
+      computerChoiceDisplay.textContent = '...';
+      computerChoiceDisplay.classList.add('shake');
+      
+      // Después de un breve retraso (para efecto dramático)
+      setTimeout(() => {
+        // Elección aleatoria de la máquina
+        const choices = ['piedra', 'papel', 'tijera'];
+        const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+        
+        // Mostrar elección de la máquina
+        computerChoiceDisplay.textContent = emojis[computerChoice];
+        computerChoiceDisplay.classList.remove('shake');
+        computerChoiceDisplay.classList.add('pulse');
+        
+        // Determinar el resultado
+        const result = determineWinner(playerChoice, computerChoice);
+        
+        // Mostrar resultado
+        displayResult(result, playerChoice, computerChoice);
+        
+        // Actualizar historial
+        updateHistory(result, playerChoice, computerChoice);
+        
+        // Quitar animaciones después de que terminen
+        setTimeout(() => {
+          playerChoiceDisplay.classList.remove('pulse');
+          computerChoiceDisplay.classList.remove('pulse');
+        }, 500);
+      }, 800);
+    }
+    
+    // Determinar el ganador
+    function determineWinner(player, computer) {
+      if (player === computer) {
+        return 'draw';
+      }
+      
+      if (
+        (player === 'piedra' && computer === 'tijera') ||
+        (player === 'papel' && computer === 'piedra') ||
+        (player === 'tijera' && computer === 'papel')
+      ) {
+        return 'win';
+      }
+      
+      return 'lose';
+    }
+    
+    // Mostrar el resultado
+    function displayResult(result, playerChoice, computerChoice) {
+      let resultText = '';
+      let resultClass = '';
+      let emoji = '';
+      
+      switch (result) {
+        case 'win':
+          playerScore++;
+          resultText = `¡Ganaste! ${optionNames[playerChoice]} vence a ${optionNames[computerChoice]}`;
+          resultClass = 'win';
+          emoji = '🎉';
+          winSound.currentTime = 0;
+          winSound.play();
+          break;
+        case 'lose':
+          computerScore++;
+          resultText = `Perdiste... ${optionNames[computerChoice]} vence a ${optionNames[playerChoice]}`;
+          resultClass = 'lose';
+          emoji = '😢';
+          loseSound.currentTime = 0;
+          loseSound.play();
+          break;
+        case 'draw':
+          drawScore++;
+          resultText = `¡Empate! Ambos eligieron ${optionNames[playerChoice]}`;
+          resultClass = 'draw';
+          emoji = '🤝';
+          drawSound.currentTime = 0;
+          drawSound.play();
+          break;
+      }
+      
+      // Actualizar marcadores
+      playerScoreDisplay.textContent = playerScore;
+      computerScoreDisplay.textContent = computerScore;
+      drawScoreDisplay.textContent = drawScore;
+      
+      // Mostrar resultado
+      emojiResult.textContent = emoji;
+      emojiResult.className = 'emoji-result animate__animated animate__bounceIn';
+      
+      resultDisplay.innerHTML = `
+        <div class="${resultClass}">${resultText}</div>
+      `;
+      
+      // Agregar animación al botón correspondiente
+      const buttons = document.querySelectorAll('.btn-choice');
+      buttons.forEach(button => {
+        button.classList.remove('animate__tada');
+        if (button.title === optionNames[playerChoice]) {
+          button.classList.add('animate__tada');
+        }
+      });
+    }
+    
+    // Actualizar historial
+    function updateHistory(result, playerChoice, computerChoice) {
+      const resultClass = result === 'win' ? 'win' : result === 'lose' ? 'lose' : 'draw';
+      const resultIcon = result === 'win' ? '✓' : result === 'lose' ? '✗' : '=';
+      
+      const historyItem = document.createElement('div');
+      historyItem.className = `history-item ${resultClass}`;
+      historyItem.innerHTML = `
+        <span>${emojis[playerChoice]} vs ${emojis[computerChoice]}</span>
+        <span><strong>${resultIcon}</strong></span>
+      `;
+      
+      // Insertar al principio del historial
+      if (historyDisplay.children.length > 10) {
+        historyDisplay.removeChild(historyDisplay.lastChild);
+      }
+      
+      if (historyDisplay.children.length > 0) {
+        historyDisplay.insertBefore(historyItem, historyDisplay.children[1]);
+      } else {
+        historyDisplay.appendChild(historyItem);
+      }
+      
+      // Guardar en el historial
+      gameHistory.unshift({
+        player: playerChoice,
+        computer: computerChoice,
+        result: result,
+        timestamp: new Date()
+      });
+    }
+    
+    // Efecto al pasar el ratón sobre los botones
+    document.querySelectorAll('.btn-choice').forEach(button => {
+      button.addEventListener('mouseenter', function() {
+        this.classList.add('animate__pulse');
+      });
+      
+      button.addEventListener('mouseleave', function() {
+        this.classList.remove('animate__pulse');
+      });
+    });
+  </script>
+</body>
+</html>
